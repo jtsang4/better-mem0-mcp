@@ -3,6 +3,29 @@ import { Memory } from 'mem0ai/oss';
 import { z } from 'zod';
 import { Mem0Config } from './config.js';
 
+type MemoryConfig = {
+  version?: string;
+  embedder?: {
+    provider: string;
+    config: Record<string, any>;
+  };
+  vectorStore?: {
+    provider: string;
+    config: Record<string, any>;
+  };
+  llm?: {
+    provider: string;
+    config: Record<string, any>;
+  };
+  historyStore?: {
+    provider: string;
+    config: Record<string, any>;
+  };
+  historyDbPath?: string;
+  disableHistory?: boolean;
+  customPrompt?: string;
+};
+
 /**
  * Create a Mem0 MCP server
  * @param config Mem0 configuration
@@ -11,7 +34,21 @@ import { Mem0Config } from './config.js';
  */
 export function createMem0Server(config: Mem0Config, userId: string = 'default'): McpServer {
   // Initialize Mem0 with the provided configuration
-  const memory = new Memory(config);
+  const memoryConfig: MemoryConfig = {
+    version: config.version,
+    embedder: config.embedder,
+    vectorStore: config.vectorStore,
+    llm: config.llm,
+    historyStore: config.historyStore ? {
+      provider: config.historyStore.provider || 'sqlite',
+      config: config.historyStore.config || {}
+    } : undefined,
+    historyDbPath: config.historyDbPath,
+    disableHistory: config.disableHistory,
+    customPrompt: config.customPrompt
+  };
+
+  const memory = new Memory(memoryConfig);
 
   // Create MCP server
   const server = new McpServer({
@@ -32,11 +69,16 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
       ).describe('An array of messages to store as a memory. Each message has a role and content.'),
       metadata: z.record(z.any()).optional().describe('Optional metadata to associate with this memory for better organization and retrieval'),
     },
-    async ({ messages, metadata }) => {
+    {
+      description: 'Store a new memory in the Mem0 system. This allows you to save conversation history or important information for later retrieval.',
+    },
+    async (args) => {
       try {
-        const result = await memory.add(messages, { userId, metadata });
+        const result = await memory.add(args.messages, { userId, metadata: args.metadata });
+        // The result might be of different types depending on the Mem0 version
+        const memoryId = typeof result === 'object' && result !== null && 'id' in result ? result.id : 'unknown';
         return {
-          content: [{ type: 'text', text: `Memory stored with ID: ${result.id}` }],
+          content: [{ type: 'text', text: `Memory stored with ID: ${memoryId}` }],
         };
       } catch (error) {
         return {
@@ -44,9 +86,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Store a new memory in the Mem0 system. This allows you to save conversation history or important information for later retrieval.',
     }
   );
 
@@ -54,6 +93,9 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
   server.tool(
     'getAll',
     {},
+    {
+      description: 'Retrieve all memories stored for the current user. This returns the complete list of memories without any filtering.',
+    },
     async () => {
       try {
         const memories = await memory.getAll({ userId });
@@ -66,9 +108,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Retrieve all memories stored for the current user. This returns the complete list of memories without any filtering.',
     }
   );
 
@@ -78,9 +117,12 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
     {
       id: z.string().describe('The unique identifier of the memory to retrieve'),
     },
-    async ({ id }) => {
+    {
+      description: 'Retrieve a specific memory by its unique ID. Use this when you need to access a particular memory you know the ID for.',
+    },
+    async (args) => {
       try {
-        const memoryItem = await memory.get(id);
+        const memoryItem = await memory.get(args.id);
         return {
           content: [{ type: 'text', text: JSON.stringify(memoryItem, null, 2) }],
         };
@@ -90,9 +132,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Retrieve a specific memory by its unique ID. Use this when you need to access a particular memory you know the ID for.',
     }
   );
 
@@ -102,9 +141,12 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
     {
       query: z.string().describe('The search query to find relevant memories. This will perform semantic search using embeddings.'),
     },
-    async ({ query }) => {
+    {
+      description: 'Search for memories using semantic search. This finds memories that are conceptually related to your query, not just exact keyword matches.',
+    },
+    async (args) => {
       try {
-        const results = await memory.search(query, { userId });
+        const results = await memory.search(args.query, { userId });
         return {
           content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
         };
@@ -114,9 +156,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Search for memories using semantic search. This finds memories that are conceptually related to your query, not just exact keyword matches.',
     }
   );
 
@@ -127,9 +166,12 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
       id: z.string().describe('The unique identifier of the memory to update'),
       content: z.string().describe('The new content to replace the existing memory content'),
     },
-    async ({ id, content }) => {
+    {
+      description: 'Update the content of an existing memory. This modifies a memory while preserving its ID and creation timestamp.',
+    },
+    async (args) => {
       try {
-        const result = await memory.update(id, content);
+        const result = await memory.update(args.id, args.content);
         return {
           content: [{ type: 'text', text: `Memory updated: ${JSON.stringify(result, null, 2)}` }],
         };
@@ -139,9 +181,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Update the content of an existing memory. This modifies a memory while preserving its ID and creation timestamp.',
     }
   );
 
@@ -151,9 +190,12 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
     {
       id: z.string().describe('The unique identifier of the memory to retrieve history for'),
     },
-    async ({ id }) => {
+    {
+      description: 'Retrieve the history of changes for a specific memory. This shows all previous versions and modifications of the memory.',
+    },
+    async (args) => {
       try {
-        const history = await memory.history(id);
+        const history = await memory.history(args.id);
         return {
           content: [{ type: 'text', text: JSON.stringify(history, null, 2) }],
         };
@@ -163,9 +205,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Retrieve the history of changes for a specific memory. This shows all previous versions and modifications of the memory.',
     }
   );
 
@@ -175,11 +214,14 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
     {
       id: z.string().describe('The unique identifier of the memory to delete'),
     },
-    async ({ id }) => {
+    {
+      description: 'Delete a specific memory by its ID. This permanently removes the memory from storage.',
+    },
+    async (args) => {
       try {
-        await memory.delete(id);
+        await memory.delete(args.id);
         return {
-          content: [{ type: 'text', text: `Memory with ID ${id} deleted successfully` }],
+          content: [{ type: 'text', text: `Memory with ID ${args.id} deleted successfully` }],
         };
       } catch (error) {
         return {
@@ -187,9 +229,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Delete a specific memory by its ID. This permanently removes the memory from storage.',
     }
   );
 
@@ -197,6 +236,9 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
   server.tool(
     'deleteAll',
     {},
+    {
+      description: 'Delete all memories for the current user. This is a destructive operation that removes all stored memories.',
+    },
     async () => {
       try {
         await memory.deleteAll({ userId });
@@ -209,9 +251,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Delete all memories for the current user. This is a destructive operation that removes all stored memories.',
     }
   );
 
@@ -219,6 +258,9 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
   server.tool(
     'reset',
     {},
+    {
+      description: 'Reset the entire memory system. This clears all memories for all users and is a global operation.',
+    },
     async () => {
       try {
         await memory.reset();
@@ -231,9 +273,6 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
           isError: true,
         };
       }
-    },
-    {
-      description: 'Reset the entire memory system. This clears all memories for all users and is a global operation.',
     }
   );
 

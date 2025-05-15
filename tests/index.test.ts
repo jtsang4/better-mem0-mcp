@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { squared } from '../src/index';
+import { createMem0Server } from '../src/index';
 
-test('squared', () => {
-  expect(squared(2)).toBe(4);
-  expect(squared(12)).toBe(144);
+test('createMem0Server', () => {
+  const server = createMem0Server({});
+  expect(server).toBeDefined();
 });
