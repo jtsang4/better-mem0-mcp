@@ -12,4 +12,16 @@ export default defineConfig({
       syntax: ['node 18'],
     },
   ],
+  bin: [
+    {
+      input: 'src/cli.ts',
+      output: 'dist/cli.js',
+      shebang: true,
+    },
+    {
+      input: 'src/http.ts',
+      output: 'dist/http.js',
+      shebang: false,
+    },
+  ],
 });

@@ -14,11 +14,12 @@
   "bin": {
     "better-mem0-mcp": "./dist/cli.js"
   },
+  "type": "module",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rslib build",
+    "build": "rslib build && tsc --project tsconfig.cli.json",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
