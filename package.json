@@ -18,7 +18,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rslib build && tsc src/cli.ts src/http.ts --outDir dist --module NodeNext --moduleResolution NodeNext --target ES2020 --esModuleInterop --declaration",
+    "build": "rslib build && tsc src/cli.ts src/http.ts --outDir dist --module NodeNext --moduleResolution NodeNext --target ES2020 --esModuleInterop --declaration --sourceMap && chmod +x dist/cli.js",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
