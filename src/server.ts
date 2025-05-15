@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Memory } from 'mem0ai/oss';
 import { z } from 'zod';
-import { Mem0Config } from './config.js';
+import type { Mem0Config } from './config.js';
 
 type MemoryConfig = {
   version?: string;
@@ -32,20 +32,22 @@ type MemoryConfig = {
  * @param userId User ID for memory operations
  * @returns MCP server instance
  */
-export function createMem0Server(config: Mem0Config, userId: string = 'default'): McpServer {
+export function createMem0Server(config: Mem0Config, userId = 'default'): McpServer {
   // Initialize Mem0 with the provided configuration
   const memoryConfig: MemoryConfig = {
     version: config.version,
     embedder: config.embedder,
     vectorStore: config.vectorStore,
     llm: config.llm,
-    historyStore: config.historyStore ? {
-      provider: config.historyStore.provider || 'sqlite',
-      config: config.historyStore.config || {}
-    } : undefined,
+    historyStore: config.historyStore
+      ? {
+          provider: config.historyStore.provider || 'sqlite',
+          config: config.historyStore.config || {},
+        }
+      : undefined,
     historyDbPath: config.historyDbPath,
     disableHistory: config.disableHistory,
-    customPrompt: config.customPrompt
+    customPrompt: config.customPrompt,
   };
 
   const memory = new Memory(memoryConfig);
@@ -54,7 +56,8 @@ export function createMem0Server(config: Mem0Config, userId: string = 'default')
   const server = new McpServer({
     name: 'Mem0',
     version: '1.0.0',
-    description: 'MCP Server for Mem0 memory operations - provides persistent memory capabilities for AI agents',
+    description:
+      'MCP Server for Mem0 memory operations - provides persistent memory capabilities for AI agents',
   });
 
   // Add tool: Store a memory

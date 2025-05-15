@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-import fs from 'node:fs';
-import path from 'node:path';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { createMem0Server } from './server.js';
 import { getDefaultConfig, loadConfig } from './config.js';
+import { createMem0Server } from './server.js';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -37,21 +35,19 @@ Options:
 async function main() {
   try {
     // Load configuration
-    const config = configPath
-      ? loadConfig(configPath)
-      : getDefaultConfig();
+    const config = configPath ? loadConfig(configPath) : getDefaultConfig();
 
     console.error(`Starting Mem0 MCP Server with user ID: ${userId}`);
-    
+
     // Create server
     const server = createMem0Server(config, userId);
-    
+
     // Create transport
     const transport = new StdioServerTransport();
-    
+
     // Connect server to transport
     await server.connect(transport);
-    
+
     console.error('Mem0 MCP Server started in STDIO mode');
   } catch (error) {
     console.error('Error starting Mem0 MCP Server:', error);
@@ -59,7 +55,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Unhandled error:', error);
   process.exit(1);
 });
