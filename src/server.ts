@@ -62,7 +62,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Store a memory
   server.tool(
-    'add',
+    'storeMemory',
     {
       messages: z.array(
         z.object({
@@ -94,7 +94,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Get all memories
   server.tool(
-    'getAll',
+    'getAllMemories',
     {},
     {
       description: 'Retrieve all memories stored for the current user. This returns the complete list of memories without any filtering.',
@@ -116,7 +116,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Get a single memory by ID
   server.tool(
-    'get',
+    'getMemoryById',
     {
       id: z.string().describe('The unique identifier of the memory to retrieve'),
     },
@@ -140,7 +140,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Search memories
   server.tool(
-    'search',
+    'searchMemories',
     {
       query: z.string().describe('The search query to find relevant memories. This will perform semantic search using embeddings.'),
     },
@@ -164,7 +164,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Update a memory
   server.tool(
-    'update',
+    'updateMemory',
     {
       id: z.string().describe('The unique identifier of the memory to update'),
       content: z.string().describe('The new content to replace the existing memory content'),
@@ -189,7 +189,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Get memory history
   server.tool(
-    'history',
+    'getMemoryHistory',
     {
       id: z.string().describe('The unique identifier of the memory to retrieve history for'),
     },
@@ -213,7 +213,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Delete a memory
   server.tool(
-    'delete',
+    'deleteMemory',
     {
       id: z.string().describe('The unique identifier of the memory to delete'),
     },
@@ -237,7 +237,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Delete all memories for a user
   server.tool(
-    'deleteAll',
+    'deleteAllMemories',
     {},
     {
       description: 'Delete all memories for the current user. This is a destructive operation that removes all stored memories.',
@@ -259,7 +259,7 @@ export function createMem0Server(config: Mem0Config, userId = 'default'): McpSer
 
   // Add tool: Reset memory
   server.tool(
-    'reset',
+    'resetAllMemorySystems',
     {},
     {
       description: 'Reset the entire memory system. This clears all memories for all users and is a global operation.',

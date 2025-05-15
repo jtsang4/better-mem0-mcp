@@ -70,15 +70,15 @@ historyDbPath: memory.db
 
 This MCP server exposes the following tools:
 
-- `add` - Store a new memory
-- `getAll` - Retrieve all memories for a user
-- `get` - Get a specific memory by ID
-- `search` - Search memories with a query
-- `update` - Update an existing memory
-- `history` - Get the history of a memory
-- `delete` - Delete a specific memory
-- `deleteAll` - Delete all memories for a user
-- `reset` - Reset all memories
+- `storeMemory` - Store a new memory in the system
+- `getAllMemories` - Retrieve all memories for the current user
+- `getMemoryById` - Get a specific memory by its unique ID
+- `searchMemories` - Search memories using semantic search
+- `updateMemory` - Update the content of an existing memory
+- `getMemoryHistory` - Retrieve the history of changes for a memory
+- `deleteMemory` - Delete a specific memory by its ID
+- `deleteAllMemories` - Delete all memories for the current user
+- `resetAllMemorySystems` - Reset the entire memory system
 
 ## Development
 

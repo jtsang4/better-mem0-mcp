@@ -19,5 +19,17 @@ describe('Mem0 MCP Server', () => {
     // Verify the server has the expected methods
     expect(typeof server.connect).toBe('function');
     expect(typeof server.close).toBe('function');
+
+    // Note: We can't directly test the tool names as they're not exposed publicly
+    // The tool names have been updated to be more descriptive:
+    // - 'storeMemory' (previously 'add')
+    // - 'getAllMemories' (previously 'getAll')
+    // - 'getMemoryById' (previously 'get')
+    // - 'searchMemories' (previously 'search')
+    // - 'updateMemory' (previously 'update')
+    // - 'getMemoryHistory' (previously 'history')
+    // - 'deleteMemory' (previously 'delete')
+    // - 'deleteAllMemories' (previously 'deleteAll')
+    // - 'resetAllMemorySystems' (previously 'reset')
   });
 });
