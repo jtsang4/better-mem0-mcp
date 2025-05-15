@@ -1,17 +1,50 @@
 version: v1.1
+
+# Embedder configuration
 embedder:
   provider: openai
   config:
     apiKey: ${OPENAI_API_KEY}
     model: text-embedding-3-small
+    embeddingDims: 1536  # Optional: Specify embedding dimensions
+
+# Vector store configuration
 vectorStore:
-  provider: memory
+  provider: memory  # Options: memory, qdrant, pinecone, etc.
   config:
     collectionName: memories
     dimension: 1536
+    # Optional connection parameters for other providers
+    # host: localhost
+    # port: 6333
+    # url: https://your-vector-db-url
+    # username: user
+    # password: pass
+    # apiKey: your-api-key
+    # onDisk: true
+
+# LLM configuration
 llm:
-  provider: openai
+  provider: openai  # Options: openai, anthropic, etc.
   config:
     apiKey: ${OPENAI_API_KEY}
     model: gpt-4-turbo-preview
-historyDbPath: memory.db
+    temperature: 0.7  # Optional: Control randomness (0.0 to 1.0)
+    maxTokens: 1000   # Optional: Maximum tokens to generate
+    # topP: 0.9       # Optional: Nucleus sampling parameter
+    # topK: 40        # Optional: Top-k sampling parameter
+    # openaiBaseUrl: https://your-openai-proxy  # Optional: Custom OpenAI API endpoint
+
+# History store configuration
+historyDbPath: memory.db  # Path to SQLite database for memory history
+
+# Optional: Use Supabase for history in serverless environments
+# historyStore:
+#   provider: supabase
+#   config:
+#     supabaseUrl: ${SUPABASE_URL}
+#     supabaseKey: ${SUPABASE_KEY}
+#     tableName: memory_history
+
+# Optional: Disable history tracking
+# disableHistory: false

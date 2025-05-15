@@ -1,15 +1,16 @@
-import express from 'express';
 import { randomUUID } from 'node:crypto';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { createMem0Server } from './server.js';
+import express from 'express';
+import type { Request, Response } from 'express';
 import { getDefaultConfig, loadConfig } from './config.js';
+import { createMem0Server } from './server.js';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 let configPath = '';
 let userId = process.env.MEM0_USER_ID || 'default';
-let port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+let port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3000;
 
 // Process command line arguments
 for (let i = 0; i < args.length; i++) {
@@ -20,7 +21,7 @@ for (let i = 0; i < args.length; i++) {
     userId = args[i + 1];
     i++;
   } else if (args[i] === '--port' && i + 1 < args.length) {
-    port = parseInt(args[i + 1], 10);
+    port = Number.parseInt(args[i + 1], 10);
     i++;
   } else if (args[i] === '--help' || args[i] === '-h') {
     console.log(`
@@ -42,25 +43,24 @@ Options:
 async function main() {
   try {
     // Load configuration
-    const config = configPath
-      ? loadConfig(configPath)
-      : getDefaultConfig();
+    const config = configPath ? loadConfig(configPath) : getDefaultConfig();
 
     console.log(`Starting Mem0 MCP Server with user ID: ${userId}`);
-    
+
     // Create Express app
     const app = express();
     app.use(express.json());
-    
+
     // Map to store transports by session ID
-    const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
-    
+    const transports: { [sessionId: string]: StreamableHTTPServerTransport } =
+      {};
+
     // Handle POST requests for client-to-server communication
     app.post('/mcp', async (req, res) => {
       // Check for existing session ID
       const sessionId = req.headers['mcp-session-id'] as string | undefined;
       let transport: StreamableHTTPServerTransport;
-    
+
       if (sessionId && transports[sessionId]) {
         // Reuse existing transport
         transport = transports[sessionId];
@@ -71,19 +71,19 @@ async function main() {
           onsessioninitialized: (sessionId) => {
             // Store the transport by session ID
             transports[sessionId] = transport;
-          }
+          },
         });
-    
+
         // Clean up transport when closed
         transport.onclose = () => {
           if (transport.sessionId) {
             delete transports[transport.sessionId];
           }
         };
-        
+
         // Create server
         const server = createMem0Server(config, userId);
-    
+
         // Connect to the MCP server
         await server.connect(transport);
       } else {
@@ -98,29 +98,32 @@ async function main() {
         });
         return;
       }
-    
+
       // Handle the request
       await transport.handleRequest(req, res, req.body);
     });
-    
+
     // Reusable handler for GET and DELETE requests
-    const handleSessionRequest = async (req: express.Request, res: express.Response) => {
+    const handleSessionRequest = async (
+      req: express.Request,
+      res: express.Response,
+    ) => {
       const sessionId = req.headers['mcp-session-id'] as string | undefined;
       if (!sessionId || !transports[sessionId]) {
         res.status(400).send('Invalid or missing session ID');
         return;
       }
-      
+
       const transport = transports[sessionId];
       await transport.handleRequest(req, res);
     };
-    
+
     // Handle GET requests for server-to-client notifications via SSE
     app.get('/mcp', handleSessionRequest);
-    
+
     // Handle DELETE requests for session termination
     app.delete('/mcp', handleSessionRequest);
-    
+
     // Start the server
     app.listen(port, () => {
       console.log(`Mem0 MCP Server listening on port ${port}`);
@@ -131,7 +134,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Unhandled error:', error);
   process.exit(1);
 });

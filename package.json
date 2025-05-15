@@ -18,7 +18,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rslib build",
+    "build": "rslib build && tsc src/cli.ts src/http.ts --outDir dist --module NodeNext --moduleResolution NodeNext --target ES2020 --esModuleInterop --declaration --sourceMap && chmod +x dist/cli.js",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
@@ -28,10 +28,10 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.3",
-    "express": "^4.18.3",
-    "mem0ai": "^0.1.0",
-    "yaml": "^2.4.1",
-    "zod": "^3.22.4"
+    "express": "^5.1.0",
+    "mem0ai": "^2.1.25",
+    "yaml": "^2.8.0",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
