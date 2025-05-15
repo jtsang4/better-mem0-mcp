@@ -1,1 +1,2 @@
-export const squared = (n: number): number => n * n;
+export * from './server.js';
+export * from './config.js';

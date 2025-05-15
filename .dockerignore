@@ -1,8 +1,13 @@
 # Dependencies
 node_modules
 
-# Build output
-dist/
+# Source code (we only need the dist folder)
+src
+tests
+
+# Git
+.git
+.gitignore
 
 # Environment variables
 .env
@@ -11,18 +16,16 @@ dist/
 
 # Logs
 logs
-*.log*
+*.log
 npm-debug.log*
 
 # OS specific files
 .DS_Store
 Thumbs.db
-*.local
 
 # Editor directories and files
 .idea
-.vscode/*
-!.vscode/extensions.json
+.vscode
 *.suo
 *.ntvs*
 *.njsproj
@@ -30,3 +33,10 @@ Thumbs.db
 
 # Mem0 database files
 *.db
+
+# Build and test files
+tsconfig.json
+vitest.config.ts
+biome.json
+rslib.config.ts
+bun.lock
