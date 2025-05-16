@@ -10,30 +10,79 @@ embedder:
 
 # Vector store configuration
 vectorStore:
-  provider: memory  # Options: memory, qdrant, pinecone, etc.
+  provider: memory  # Options: memory, qdrant, pinecone, chroma, etc.
   config:
-    collectionName: memories
-    dimension: 1536
-    # Optional connection parameters for other providers
-    # host: localhost
-    # port: 6333
-    # url: https://your-vector-db-url
-    # username: user
-    # password: pass
-    # apiKey: your-api-key
-    # onDisk: true
+    # Common parameters
+    collectionName: memories      # Name of the collection to store vectors in
+    dimension: 1536              # Dimensions of the vectors (for memory provider)
+    embeddingModelDims: 1536     # Dimensions of the embedding model (should match your embedder)
+
+    # Connection parameters (uncomment and configure based on your vector DB provider)
+
+    # Server connection (for Qdrant, Pinecone, etc.)
+    # host: localhost            # Host where the vector database server is running
+    # port: 6333                 # Port where the vector database server is running
+    # url: https://your-vector-db-url  # URL for the vector database server (alternative to host/port)
+    # apiKey: your-api-key       # API key for authenticated vector database services
+
+    # File-based storage
+    # path: ./vector-db          # Path for file-based vector databases
+    # onDisk: true               # Enable persistent storage (for memory provider)
+
+    # Redis connection (for Redis-based vector stores)
+    # redisUrl: redis://localhost:6379  # URL for the Redis server
+
+    # Authentication (for databases requiring authentication)
+    # username: user             # Username for database connection
+    # password: pass             # Password for database connection
 
 # LLM configuration
 llm:
-  provider: openai  # Options: openai, anthropic, etc.
+  # Provider options: openai, anthropic, azureopenai, openrouter, ollama, deepseek, xai, lmstudio, etc.
+  provider: openai
   config:
-    apiKey: ${OPENAI_API_KEY}
-    model: gpt-4-turbo-preview
-    temperature: 0.7  # Optional: Control randomness (0.0 to 1.0)
-    maxTokens: 1000   # Optional: Maximum tokens to generate
-    # topP: 0.9       # Optional: Nucleus sampling parameter
-    # topK: 40        # Optional: Top-k sampling parameter
-    # openaiBaseUrl: https://your-openai-proxy  # Optional: Custom OpenAI API endpoint
+    # Common parameters (supported by all providers)
+    apiKey: ${OPENAI_API_KEY}      # API key for the LLM service
+    model: gpt-4-turbo-preview     # Model to use for text generation
+    temperature: 0.7               # Control randomness (0.0 to 1.0)
+    maxTokens: 1000                # Maximum tokens to generate in responses
+
+    # Sampling parameters (supported by most providers)
+    # topP: 0.9                    # Probability threshold for nucleus sampling
+    # topK: 40                     # Number of highest probability tokens to keep for sampling
+
+    # OpenAI specific parameters
+    # openaiBaseUrl: https://your-openai-proxy  # Custom OpenAI API endpoint
+
+    # Azure OpenAI specific parameters
+    # httpClientProxies:           # Allow proxy server settings
+    #   http: http://proxy:port
+    #   https: https://proxy:port
+    # azureKwargs:                 # Azure LLM args for initialization
+    #   api_version: 2023-05-15
+    #   azure_deployment: deployment-name
+    #   azure_endpoint: https://your-resource-name.openai.azure.com
+
+    # Openrouter specific parameters
+    # models:                      # List of models to use
+    #   - openai/gpt-3.5-turbo
+    #   - anthropic/claude-2
+    # route: fallback               # Routing strategy (e.g., 'fallback', 'weighted')
+    # openrouterBaseUrl: https://openrouter.ai/api/v1  # Base URL for Openrouter API
+    # siteUrl: https://your-site.com  # Your site URL for attribution
+    # appName: YourApp             # Your application name for attribution
+
+    # Ollama specific parameters
+    # ollamaBaseUrl: http://localhost:11434  # Base URL for Ollama API
+
+    # DeepSeek specific parameters
+    # deepseekBaseUrl: https://api.deepseek.com  # Base URL for DeepSeek API
+
+    # XAI specific parameters
+    # xaiBaseUrl: https://api.xai.com  # Base URL for XAI API
+
+    # LM Studio specific parameters
+    # lmstudioBaseUrl: http://localhost:1234  # Base URL for LM Studio API
 
 # History store configuration
 historyDbPath: memory.db  # Path to SQLite database for memory history
