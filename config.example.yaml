@@ -10,18 +10,31 @@ embedder:
 
 # Vector store configuration
 vectorStore:
-  provider: memory  # Options: memory, qdrant, pinecone, etc.
+  provider: memory  # Options: memory, qdrant, pinecone, chroma, etc.
   config:
-    collectionName: memories
-    dimension: 1536
-    # Optional connection parameters for other providers
-    # host: localhost
-    # port: 6333
-    # url: https://your-vector-db-url
-    # username: user
-    # password: pass
-    # apiKey: your-api-key
-    # onDisk: true
+    # Common parameters
+    collectionName: memories      # Name of the collection to store vectors in
+    dimension: 1536              # Dimensions of the vectors (for memory provider)
+    embeddingModelDims: 1536     # Dimensions of the embedding model (should match your embedder)
+
+    # Connection parameters (uncomment and configure based on your vector DB provider)
+
+    # Server connection (for Qdrant, Pinecone, etc.)
+    # host: localhost            # Host where the vector database server is running
+    # port: 6333                 # Port where the vector database server is running
+    # url: https://your-vector-db-url  # URL for the vector database server (alternative to host/port)
+    # apiKey: your-api-key       # API key for authenticated vector database services
+
+    # File-based storage
+    # path: ./vector-db          # Path for file-based vector databases
+    # onDisk: true               # Enable persistent storage (for memory provider)
+
+    # Redis connection (for Redis-based vector stores)
+    # redisUrl: redis://localhost:6379  # URL for the Redis server
+
+    # Authentication (for databases requiring authentication)
+    # username: user             # Username for database connection
+    # password: pass             # Password for database connection
 
 # LLM configuration
 llm:
