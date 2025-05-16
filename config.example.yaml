@@ -6,16 +6,16 @@ embedder:
   config:
     apiKey: ${OPENAI_API_KEY}
     model: text-embedding-3-small
-    embeddingDims: 1536  # Optional: Specify embedding dimensions
+    embeddingDims: 1536 # Optional: Specify embedding dimensions
 
 # Vector store configuration
 vectorStore:
-  provider: memory  # Options: memory, qdrant, pinecone, chroma, etc.
+  provider: memory # Options: memory, qdrant, pinecone, chroma, etc.
   config:
     # Common parameters
-    collectionName: memories      # Name of the collection to store vectors in
-    dimension: 1536              # Dimensions of the vectors (for memory provider)
-    embeddingModelDims: 1536     # Dimensions of the embedding model (should match your embedder)
+    collectionName: memories # Name of the collection to store vectors in
+    dimension: 1536 # Dimensions of the vectors (for memory provider)
+    embeddingModelDims: 1536 # Dimensions of the embedding model (should match your embedder)
 
     # Connection parameters (uncomment and configure based on your vector DB provider)
 
@@ -42,10 +42,10 @@ llm:
   provider: openai
   config:
     # Common parameters (supported by all providers)
-    apiKey: ${OPENAI_API_KEY}      # API key for the LLM service
-    model: gpt-4-turbo-preview     # Model to use for text generation
-    temperature: 0.7               # Control randomness (0.0 to 1.0)
-    maxTokens: 1000                # Maximum tokens to generate in responses
+    apiKey: ${OPENAI_API_KEY} # API key for the LLM service
+    model: gpt-4.1            # Model to use for text generation
+    temperature: 0.7          # Control randomness (0.0 to 1.0)
+    maxTokens: 1000           # Maximum tokens to generate in responses
 
     # Sampling parameters (supported by most providers)
     # topP: 0.9                    # Probability threshold for nucleus sampling
@@ -85,7 +85,7 @@ llm:
     # lmstudioBaseUrl: http://localhost:1234  # Base URL for LM Studio API
 
 # History store configuration
-historyDbPath: memory.db  # Path to SQLite database for memory history
+historyDbPath: memory.db # Path to SQLite database for memory history
 
 # Optional: Use Supabase for history in serverless environments
 # historyStore:
